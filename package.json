@@ -7,7 +7,6 @@
         "test": "jest --watchAll"
     },
     "dependencies": {
-        "canvas": "https://github.com/Nico-Guyon/node-canvas",
         "skia-canvas": "^0.9.25",
         "spotify-url-info": "^2.2.3"
     },
