@@ -52,3 +52,175 @@ export const roundedImage = (
     ctx.drawImage(image, x, y, width, height);
     ctx.restore();
 };
+
+export const pSBC = (p: number, c0: string, c1?: string, l?: boolean) => {
+    let r,
+        g,
+        b,
+        P,
+        f,
+        t,
+        h,
+        pSBCr,
+        i = parseInt,
+        m = Math.round,
+        a: any = typeof c1 === "string";
+    if (
+        typeof p !== "number" ||
+        p < -1 ||
+        p > 1 ||
+        typeof c0 !== "string" ||
+        (c0[0] !== "r" && c0[0] !== "#") ||
+        (c1 && !a)
+    )
+        return null;
+    if (!pSBCr)
+        pSBCr = (d) => {
+            let n = d.length,
+                x: any = {};
+            if (n > 9) {
+                ([r, g, b, a] = d = d.split(",")), (n = d.length);
+                if (n < 3 || n > 4) return null;
+                (x.r = i(r[3] == "a" ? r.slice(5) : r.slice(4))),
+                    (x.g = i(g)),
+                    (x.b = i(b)),
+                    (x.a = a ? parseFloat(a) : -1);
+            } else {
+                if (n === 8 || n === 6 || n < 4) return null;
+                if (n < 6)
+                    d = "#" + d[1] + d[1] + d[2] + d[2] + d[3] + d[3] + (n > 4 ? d[4] + d[4] : "");
+                d = i(d.slice(1), 16);
+                if (n === 9 || n === 5)
+                    (x.r = (d >> 24) & 255),
+                        (x.g = (d >> 16) & 255),
+                        (x.b = (d >> 8) & 255),
+                        (x.a = m((d & 255) / 0.255) / 1000);
+                else (x.r = d >> 16), (x.g = (d >> 8) & 255), (x.b = d & 255), (x.a = -1);
+            }
+            return x;
+        };
+    (h = c0.length > 9),
+        (h = a ? (c1.length > 9 ? true : c1 === "c" ? !h : false) : h),
+        (f = pSBCr(c0)),
+        (P = p < 0),
+        (t =
+            c1 && c1 !== "c"
+                ? pSBCr(c1)
+                : P
+                ? { r: 0, g: 0, b: 0, a: -1 }
+                : { r: 255, g: 255, b: 255, a: -1 }),
+        (p = P ? p * -1 : p),
+        (P = 1 - p);
+    if (!f || !t) return null;
+    if (l) (r = m(P * f.r + p * t.r)), (g = m(P * f.g + p * t.g)), (b = m(P * f.b + p * t.b));
+    else
+        (r = m((P * f.r ** 2 + p * t.r ** 2) ** 0.5)),
+            (g = m((P * f.g ** 2 + p * t.g ** 2) ** 0.5)),
+            (b = m((P * f.b ** 2 + p * t.b ** 2) ** 0.5));
+    (a = f.a),
+        (t = t.a),
+        (f = a >= 0 || t >= 0),
+        (a = f ? (a < 0 ? t : t < 0 ? a : a * P + t * p) : 0);
+    if (h)
+        return (
+            "rgb" +
+            (f ? "a(" : "(") +
+            r +
+            "," +
+            g +
+            "," +
+            b +
+            (f ? "," + m(a * 1000) / 1000 : "") +
+            ")"
+        );
+    else
+        return (
+            "#" +
+            (4294967296 + r * 16777216 + g * 65536 + b * 256 + (f ? m(a * 255) : 0))
+                .toString(16)
+                .slice(1, f ? undefined : -2)
+        );
+};
+
+export const isLight = (color: string) => {
+    let r: any, g: any, b: any, color_match: any, hsp: number;
+    // Check the format of the color, HEX or RGB?
+    if (color.match(/^rgb/)) {
+        // If HEX --> store the red, green, blue values in separate variables
+        color_match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+
+        r = color_match[1];
+        g = color_match[2];
+        b = color_match[3];
+    } else {
+        // If RGB --> Convert it to HEX: http://gist.github.com/983661
+        color_match = +("0x" + color.slice(1).replace(color.length < 5 && /./g, "$&$&"));
+
+        r = color_match >> 16;
+        g = (color_match >> 8) & 255;
+        b = color_match & 255;
+    }
+
+    // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+    hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+
+    // Using the HSP value, determine whether the color is light or dark
+    return hsp > 127.5;
+};
+
+export const fittingString = (c: CanvasRenderingContext2D, str: string, maxWidth: number) => {
+    var width = c.measureText(str).width;
+    var ellipsis = "…";
+    var ellipsisWidth = c.measureText(ellipsis).width;
+    if (width <= maxWidth || width <= ellipsisWidth) {
+        return str;
+    } else {
+        var len = str.length;
+        while (width >= maxWidth - ellipsisWidth && len-- > 0) {
+            str = str.substring(0, len);
+            width = c.measureText(str).width;
+        }
+        return str + ellipsis;
+    }
+};
+
+export const progressBar = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    total: number,
+    current: number,
+    light: boolean
+) => {
+    ctx.fillStyle = light ? "#2e2e2ebf" : "#bbb";
+    roundRect(ctx, x, y, width, height, 8);
+    ctx.fillStyle = light ? "#1e1e1e" : "#fff";
+    roundRect(ctx, x, y, (width / total) * current, height, 8);
+    ctx.beginPath();
+    ctx.arc(x + (width / total) * current, y + height / 2, height * 1.25, 0, 360);
+    ctx.fill();
+    ctx.closePath();
+};
+
+export const formatMilliseconds = (milliseconds: number, padStart: boolean = false) => {
+    const pad = (num: number) => {
+        return `${num}`.padStart(2, "0");
+    };
+
+    let asSeconds = milliseconds / 1000;
+
+    let hours = undefined;
+    let minutes = Math.floor(asSeconds / 60);
+    let seconds = Math.floor(asSeconds % 60);
+
+    if (minutes > 59) {
+        hours = Math.floor(minutes / 60);
+        minutes %= 60;
+    }
+
+    return hours
+        ? `${padStart ? pad(hours) : hours}:${pad(minutes)}:${pad(seconds)}`
+        : `${padStart ? pad(minutes) : minutes}:${pad(seconds)}`;
+};

@@ -2,8 +2,14 @@ import { ArtistsEntity } from "spotify-url-info";
 
 export interface GenerateOptions {
     url: string;
+    currentTime: number;
+    totalTime: number;
     width?: number;
     height?: number;
+    margin?: number;
+    progressBarHeight?: number;
+    titleSize?: number;
+    albumTitleSize?: number;
 }
 
 export interface SpotifyAlbum {
