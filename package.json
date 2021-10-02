@@ -4,6 +4,10 @@
     "main": "dist/index.js",
     "license": "MIT",
     "types": "dist/index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cstefFlexin/spotify-card"
+    },
     "scripts": {
         "test": "yarn jest",
         "prepublish": "tsc && cp -r fonts dist"
