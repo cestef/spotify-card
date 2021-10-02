@@ -12,6 +12,8 @@ export interface GenerateOptions {
     albumTitleSize?: number;
     blurImage?: boolean;
     progressBar?: boolean;
+    imageRadius?: number;
+    cardRadius?: number;
 }
 
 export interface SpotifyAlbum {

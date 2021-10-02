@@ -21,6 +21,8 @@ const defaultOptions = {
     titleSize: 60,
     albumTitleSize: 45,
     progressBar: true,
+    imageRadius: 50,
+    cardRadius: 25,
 };
 
 const FONTS = [{ path: "Noto_Sans_KR", name: "NS" }];
@@ -43,7 +45,7 @@ export const generate = async (options: GenerateOptions) => {
     spotify_res.dominantColor = pSBC(0.001, spotify_res.dominantColor);
     const text_color = isLight(spotify_res.dominantColor) ? "#000" : "#fff";
     ctx.fillStyle = spotify_res.dominantColor;
-    roundRect(ctx, 0, 0, canvas.width, canvas.height, 25);
+    roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
     const image = await loadImage(spotify_res.album.images[0].url);
     if (options.blurImage) {
         ctx.filter = "blur(30px)";
@@ -63,7 +65,7 @@ export const generate = async (options: GenerateOptions) => {
         options.margin,
         canvas.height - options.margin * 2,
         canvas.height - options.margin * 2,
-        50
+        options.imageRadius
     );
     const second_part_x = canvas.height + options.margin;
 

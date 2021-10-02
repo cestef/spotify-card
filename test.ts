@@ -14,6 +14,7 @@ import fs from "fs";
         width: 1500,
         blurImage: true,
         progressBar: false,
+        cardRadius: 30,
     });
     fs.writeFileSync(path.join(__dirname, "test_image.png"), image);
 })();
