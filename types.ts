@@ -10,6 +10,8 @@ export interface GenerateOptions {
     progressBarHeight?: number;
     titleSize?: number;
     albumTitleSize?: number;
+    blurImage?: boolean;
+    progressBar?: boolean;
 }
 
 export interface SpotifyAlbum {

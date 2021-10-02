@@ -20,6 +20,7 @@ const defaultOptions = {
     progressBarHeight: 20,
     titleSize: 60,
     albumTitleSize: 45,
+    progressBar: true,
 };
 
 const FONTS = [{ path: "Noto_Sans_KR", name: "NS" }];
@@ -44,14 +45,16 @@ export const generate = async (options: GenerateOptions) => {
     ctx.fillStyle = spotify_res.dominantColor;
     roundRect(ctx, 0, 0, canvas.width, canvas.height, 25);
     const image = await loadImage(spotify_res.album.images[0].url);
-    ctx.filter = "blur(30px)";
-    ctx.drawImage(
-        image,
-        options.margin,
-        options.margin,
-        canvas.height - options.margin * 2,
-        canvas.height - options.margin * 2
-    );
+    if (options.blurImage) {
+        ctx.filter = "blur(30px)";
+        ctx.drawImage(
+            image,
+            options.margin,
+            options.margin,
+            canvas.height - options.margin * 2,
+            canvas.height - options.margin * 2
+        );
+    }
     ctx.filter = "none";
     roundedImage(
         ctx,
@@ -65,19 +68,18 @@ export const generate = async (options: GenerateOptions) => {
     const second_part_x = canvas.height + options.margin;
 
     // Song title
-    ctx.font = `${options.titleSize}px NS`;
+    ctx.font = `bold ${options.titleSize}px NS`;
     ctx.fillStyle = text_color;
     const title_metrics = ctx.measureText(spotify_res.name);
-    const middle_second_part = (canvas.height - options.margin * 4.5) / 2;
+    const middle_second_part = (canvas.height - options.margin * 2) / 2;
     const title_height =
         options.margin * 1.5 +
         title_metrics.actualBoundingBoxAscent +
         title_metrics.actualBoundingBoxDescent;
     ctx.fillText(
-        spotify_res.name,
+        fittingString(ctx, spotify_res.name, canvas.width - (canvas.height + options.margin * 3)),
         second_part_x,
-        title_height,
-        canvas.width - (canvas.height + options.margin * 3)
+        options.progressBar ? title_height : middle_second_part + options.margin / 2
     );
 
     // Album title
@@ -96,45 +98,52 @@ export const generate = async (options: GenerateOptions) => {
             canvas.width - (canvas.height + options.margin * 3)
         ),
         second_part_x,
-        album_height
+        options.progressBar
+            ? album_height
+            : middle_second_part +
+                  album_metrics.actualBoundingBoxAscent +
+                  album_metrics.actualBoundingBoxDescent +
+                  options.margin * 1.5
     );
 
-    // Progress text
-    const progress_text_y = canvas.height - options.margin;
-    const progress_bar = {
-        x: second_part_x,
-        y: progress_text_y - options.margin * 1.75,
-        width: canvas.width - (second_part_x + options.margin * 2),
-        height: 20,
-    };
+    if (options.progressBar) {
+        // Progress text
+        const progress_text_y = canvas.height - options.margin;
+        const progress_bar = {
+            x: second_part_x,
+            y: progress_text_y - options.margin * 1.75,
+            width: canvas.width - (second_part_x + options.margin * 2),
+            height: 20,
+        };
 
-    ctx.font = `30px NS`;
-    ctx.fillStyle = text_color;
-    const current_formatted = formatMilliseconds(options.currentTime);
-    ctx.fillText(
-        current_formatted,
-        second_part_x - ctx.measureText(current_formatted).width / 3,
-        progress_text_y
-    );
+        ctx.font = `30px NS`;
+        ctx.fillStyle = text_color;
+        const current_formatted = formatMilliseconds(options.currentTime);
+        ctx.fillText(
+            current_formatted,
+            second_part_x - ctx.measureText(current_formatted).width / 3,
+            progress_text_y
+        );
 
-    const total_formatted = formatMilliseconds(options.totalTime);
-    ctx.fillText(
-        total_formatted,
-        second_part_x + progress_bar.width - (ctx.measureText(total_formatted).width / 3) * 2,
-        progress_text_y
-    );
+        const total_formatted = formatMilliseconds(options.totalTime);
+        ctx.fillText(
+            total_formatted,
+            second_part_x + progress_bar.width - (ctx.measureText(total_formatted).width / 3) * 2,
+            progress_text_y
+        );
 
-    // Progress bar
-    progressBar(
-        ctx,
-        progress_bar.x,
-        progress_bar.y,
-        progress_bar.width,
-        progress_bar.height,
-        options.totalTime,
-        options.currentTime,
-        isLight(spotify_res.dominantColor)
-    );
+        // Progress bar
+        progressBar(
+            ctx,
+            progress_bar.x,
+            progress_bar.y,
+            progress_bar.width,
+            progress_bar.height,
+            options.totalTime,
+            options.currentTime,
+            isLight(spotify_res.dominantColor)
+        );
+    }
 
-    return canvas.toBuffer("png");
+    return canvas.png;
 };
