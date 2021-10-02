@@ -14,6 +14,7 @@ export interface GenerateOptions {
     progressBar?: boolean;
     imageRadius?: number;
     cardRadius?: number;
+    neutralBackground?: boolean;
 }
 
 export interface SpotifyAlbum {

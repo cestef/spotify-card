@@ -17,7 +17,7 @@ import { formatMilliseconds } from "./canvasFunctions";
 const defaultOptions = {
     width: 1200,
     height: 400,
-    margin: 30,
+    margin: 40,
     progressBarHeight: 20,
     titleSize: 60,
     albumTitleSize: 45,
@@ -31,7 +31,9 @@ const loadFonts = () => {
     FONTS.forEach((f) =>
         FontLibrary.use(
             "NS",
-            fs.readdirSync(path.join(__dirname, "fonts", f.path)).map((e) => `fonts/${f}/${e}`)
+            fs
+                .readdirSync(path.join(__dirname, "../", "fonts", f.path))
+                .map((e) => `fonts/${f}/${e}`)
         )
     );
 };
@@ -49,7 +51,10 @@ export const generate = async (options: GenerateOptions) => {
     }
     const spotify_res: SpotifyRes = await getData(options.url);
 
-    spotify_res.dominantColor = pSBC(0.001, spotify_res.dominantColor);
+    spotify_res.dominantColor = options.neutralBackground
+        ? "#fff"
+        : pSBC(0.001, spotify_res.dominantColor);
+
     const text_color = isLight(spotify_res.dominantColor) ? "#000" : "#fff";
 
     ctx.fillStyle = spotify_res.dominantColor;
@@ -146,7 +151,10 @@ export const generate = async (options: GenerateOptions) => {
             second_part_x + progress_bar.width - (ctx.measureText(total_formatted).width / 3) * 2,
             progress_text_y
         );
-
+        if (options.blurImage) {
+            ctx.shadowBlur = 80;
+            ctx.shadowColor = pSBC(isLight(text_color) ? -0.8 : 0.02, text_color);
+        }
         // Progress bar
         progressBar(
             ctx,
