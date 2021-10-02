@@ -1,10 +1,12 @@
 {
     "name": "spotify-card",
     "version": "1.0.0",
-    "main": "index.ts",
+    "main": "dist/index.js",
     "license": "MIT",
+    "types": "dist/index.d.ts",
     "scripts": {
-        "test": "jest --watchAll"
+        "test": "yarn jest",
+        "prepublish": "tsc"
     },
     "dependencies": {
         "skia-canvas": "^0.9.25",

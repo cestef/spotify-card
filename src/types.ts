@@ -2,8 +2,8 @@ import { ArtistsEntity } from "spotify-url-info";
 
 export interface GenerateOptions {
     url: string;
-    currentTime: number;
-    totalTime: number;
+    currentTime?: number;
+    totalTime?: number;
     width?: number;
     height?: number;
     margin?: number;

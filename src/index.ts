@@ -21,7 +21,7 @@ const defaultOptions = {
     progressBarHeight: 20,
     titleSize: 60,
     albumTitleSize: 45,
-    progressBar: true,
+    progressBar: false,
     imageRadius: 50,
     cardRadius: 25,
 };
@@ -118,6 +118,10 @@ export const generate = async (options: GenerateOptions) => {
     );
 
     if (options.progressBar) {
+        if (!options.currentTime || !options.totalTime)
+            throw new Error(
+                "Progressbar is enabled but no totalTime or currentTime has been provided"
+            );
         // Progress text
         const progress_text_y = canvas.height - options.margin;
         const progress_bar = {
@@ -158,3 +162,5 @@ export const generate = async (options: GenerateOptions) => {
 
     return canvas.png;
 };
+
+export { GenerateOptions };

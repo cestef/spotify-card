@@ -1,4 +1,4 @@
-import { generate } from "./index";
+import { generate } from "./src/index";
 import fs from "fs";
 import path from "path";
 
