@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "skia-canvas": "^0.9.25",
+        "spotify-uri": "^2.2.0",
         "spotify-url-info": "^2.2.3"
     },
     "devDependencies": {

@@ -1,5 +1,3 @@
-import { Image } from "canvas";
-
 export const roundRect = (
     ctx: CanvasRenderingContext2D,
     x: number,

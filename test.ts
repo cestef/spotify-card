@@ -4,7 +4,7 @@ import fs from "fs";
 
 (async () => {
     const image = await generate({
-        url: "https://open.spotify.com/track/11HLDMuPD3wh88XHw4udKO?si=db1852698fd64367",
+        url: "https://open.spotify.com/track/33yAEqzKXexYM3WlOYtTfQ?si=783410135d9e4304",
         margin: 50,
         currentTime: 60_000,
         totalTime: 153_000,
@@ -13,7 +13,7 @@ import fs from "fs";
         height: 500,
         width: 1500,
         blurImage: true,
-        progressBar: false,
+        progressBar: true,
         cardRadius: 30,
     });
     fs.writeFileSync(path.join(__dirname, "test_image.png"), image);

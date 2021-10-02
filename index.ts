@@ -1,5 +1,6 @@
 import { Canvas, loadImage, FontLibrary } from "skia-canvas";
 import { getData } from "spotify-url-info";
+import { parse } from "spotify-uri";
 import {
     roundRect,
     roundedImage,
@@ -41,11 +42,19 @@ export const generate = async (options: GenerateOptions) => {
 
     const canvas = new Canvas(options.width, options.height);
     const ctx = canvas.getContext("2d");
+    try {
+        parse(options.url);
+    } catch (e) {
+        throw new Error("Invalid Spotify URL: " + e);
+    }
     const spotify_res: SpotifyRes = await getData(options.url);
+
     spotify_res.dominantColor = pSBC(0.001, spotify_res.dominantColor);
     const text_color = isLight(spotify_res.dominantColor) ? "#000" : "#fff";
+
     ctx.fillStyle = spotify_res.dominantColor;
     roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
+
     const image = await loadImage(spotify_res.album.images[0].url);
     if (options.blurImage) {
         ctx.filter = "blur(30px)";
