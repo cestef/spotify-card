@@ -98,8 +98,5 @@
     "skipLibCheck": true   , 
     "typeRoots": ["./src/types"]                             /* Skip type checking all .d.ts files. */
   },
-  "include": [
-    "src/index.ts",
-    "fonts"
-  ],
+  "include": ["src"]
 }
