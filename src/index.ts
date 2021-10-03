@@ -93,7 +93,17 @@ export const generate = async (options: GenerateOptions) => {
     } else {
         const width = canvas.width;
         const height = (canvas.width / image.width) * image.height;
-        roundedImage(ctx, image, 0, -height / 2, width, height, options.cardRadius);
+        //Gradient to darken the image and make the text more readable
+        const gradient = ctx.createLinearGradient(0, canvas.height, canvas.width, canvas.height);
+        gradient.addColorStop(1, "#1e1e1e20");
+        gradient.addColorStop(0, "#1e1e1e60");
+        ctx.save();
+        roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
+        ctx.clip();
+        ctx.drawImage(image, 0, -height / 2, width, height);
+        ctx.restore();
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     if (options.blurImage) {
@@ -135,7 +145,7 @@ export const generate = async (options: GenerateOptions) => {
 
     // Album title
     ctx.font = `${options.albumTitleSize}px NS`;
-    ctx.fillStyle = pSBC(-0.5, text_color);
+    ctx.fillStyle = options.coverBackground ? text_color : pSBC(-0.5, text_color);
     const album_metrics = ctx.measureText(song_data.album);
     const album_height =
         title_height +
@@ -152,38 +162,6 @@ export const generate = async (options: GenerateOptions) => {
                   album_metrics.actualBoundingBoxDescent +
                   options.margin * 1.5
     );
-
-    //Cover background stroke text in case the background is too light (happens sometimes)
-    if (options.coverBackground) {
-        ctx.font = `bold ${options.titleSize}px NS`;
-        ctx.strokeStyle = text_color === "#000" ? "#fff" : "#000";
-        ctx.lineWidth = 2;
-        ctx.strokeText(
-            fittingString(
-                ctx,
-                song_data.title,
-                canvas.width - (canvas.height + options.margin * 3)
-            ),
-            second_part_x,
-            options.progressBar ? title_height : middle_second_part + options.margin / 2
-        );
-        ctx.font = `${options.albumTitleSize}px NS`;
-        ctx.lineWidth = 1;
-        ctx.strokeText(
-            fittingString(
-                ctx,
-                song_data.album,
-                canvas.width - (canvas.height + options.margin * 3)
-            ),
-            second_part_x,
-            options.progressBar
-                ? album_height
-                : middle_second_part +
-                      album_metrics.actualBoundingBoxAscent +
-                      album_metrics.actualBoundingBoxDescent +
-                      options.margin * 1.5
-        );
-    }
 
     if (options.progressBar) {
         if (!options.currentTime || !options.totalTime)
