@@ -61,6 +61,10 @@ export interface GenerateOptions {
      * Whether to set or not the background to a neutral color (white)
      */
     neutralBackground?: boolean;
+    /**
+     * Whether to set or not the album cover as the background
+     */
+    coverBackground?: boolean;
 }
 
 export interface SpotifyAlbum {

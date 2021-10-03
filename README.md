@@ -9,9 +9,11 @@
 
 ## About <a name = "about"></a>
 
-This is a nodejs utility to generate spotify embeds using [skia-canvas](https://github.com/samizdatco/skia-canvas)
+This is a nodejs utility to generate song embeds using [skia-canvas](https://github.com/samizdatco/skia-canvas).
 
+The package is named `spotify-card` because I wanted to only add spotify support at the beginning but I ended up adding support for other platforms. 
 
+Currently supported plaforms: `Spotify`, `Soundcloud`
 
 ## Prerequisites <a name = "prerequisites"></a>
 
@@ -35,7 +37,7 @@ npm install spotify-card
 
 ## Usage <a name = "usage"></a>
 
-Typescript example
+### Example (typescript)
 
 ```ts
 import { generate } from "spotify-card";

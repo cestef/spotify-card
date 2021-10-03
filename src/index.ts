@@ -84,13 +84,18 @@ export const generate = async (options: GenerateOptions) => {
     song_data.dominantColor = options.neutralBackground
         ? "#fff"
         : pSBC(0.001, song_data.dominantColor);
+    const image = await loadImage(song_data.cover);
 
     const text_color = isLight(song_data.dominantColor) ? "#000" : "#fff";
+    if (!options.coverBackground) {
+        ctx.fillStyle = song_data.dominantColor;
+        roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
+    } else {
+        const width = canvas.width;
+        const height = (canvas.width / image.width) * image.height;
+        roundedImage(ctx, image, 0, -height / 2, width, height, options.cardRadius);
+    }
 
-    ctx.fillStyle = song_data.dominantColor;
-    roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
-
-    const image = await loadImage(song_data.cover);
     if (options.blurImage) {
         ctx.filter = "blur(30px)";
         ctx.drawImage(
@@ -148,6 +153,38 @@ export const generate = async (options: GenerateOptions) => {
                   options.margin * 1.5
     );
 
+    //Cover background stroke text in case the background is too light (happens sometimes)
+    if (options.coverBackground) {
+        ctx.font = `bold ${options.titleSize}px NS`;
+        ctx.strokeStyle = text_color === "#000" ? "#fff" : "#000";
+        ctx.lineWidth = 2;
+        ctx.strokeText(
+            fittingString(
+                ctx,
+                song_data.title,
+                canvas.width - (canvas.height + options.margin * 3)
+            ),
+            second_part_x,
+            options.progressBar ? title_height : middle_second_part + options.margin / 2
+        );
+        ctx.font = `${options.albumTitleSize}px NS`;
+        ctx.lineWidth = 1;
+        ctx.strokeText(
+            fittingString(
+                ctx,
+                song_data.album,
+                canvas.width - (canvas.height + options.margin * 3)
+            ),
+            second_part_x,
+            options.progressBar
+                ? album_height
+                : middle_second_part +
+                      album_metrics.actualBoundingBoxAscent +
+                      album_metrics.actualBoundingBoxDescent +
+                      options.margin * 1.5
+        );
+    }
+
     if (options.progressBar) {
         if (!options.currentTime || !options.totalTime)
             throw new Error(
@@ -177,11 +214,12 @@ export const generate = async (options: GenerateOptions) => {
             second_part_x + progress_bar.width - (ctx.measureText(total_formatted).width / 3) * 2,
             progress_text_y
         );
+
+        // Progress bar
         if (options.blurProgress) {
             ctx.shadowBlur = isLight(text_color) ? 30 : 80;
             ctx.shadowColor = pSBC(isLight(text_color) ? -0.7 : 0.02, text_color);
         }
-        // Progress bar
         progressBar(
             ctx,
             progress_bar.x,
