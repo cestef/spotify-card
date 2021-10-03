@@ -168,13 +168,13 @@ export const generate = async (options: GenerateOptions) => {
         if (first_part.endsWith("-")) {
             const second_part = fittingString(
                 ctx,
-                song_data.title.split(first_part.slice(-1))[1].trim(),
+                song_data.title.split(first_part.slice(0, -1))[1].trim(),
                 canvas.width - (canvas.height + options.margin * 3)
             );
             const album_metrics = ctx.measureText(second_part);
             const album_height =
                 title_height +
-                options.margin +
+                options.margin * 0.5 +
                 album_metrics.actualBoundingBoxAscent +
                 album_metrics.actualBoundingBoxDescent;
             ctx.fillText(
@@ -185,7 +185,7 @@ export const generate = async (options: GenerateOptions) => {
                     : middle_second_part +
                           album_metrics.actualBoundingBoxAscent +
                           album_metrics.actualBoundingBoxDescent +
-                          options.margin * 1.5
+                          options.margin
             );
         }
 
