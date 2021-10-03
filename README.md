@@ -1,4 +1,4 @@
-![Preview](test_image.png)
+![Preview](preview.png)
 
 # spotify-card
 
