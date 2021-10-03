@@ -100,7 +100,11 @@ export const generate = async (options: GenerateOptions) => {
         : pSBC(0.001, song_data.dominantColor);
     const image = await loadImage(song_data.cover);
 
-    const text_color = isLight(song_data.dominantColor) ? "#000" : "#fff";
+    const text_color = options.coverBackground
+        ? "#fff"
+        : isLight(song_data.dominantColor)
+        ? "#000"
+        : "#fff";
     if (!options.coverBackground) {
         ctx.fillStyle = song_data.dominantColor;
         roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
@@ -265,7 +269,7 @@ export const generate = async (options: GenerateOptions) => {
             progress_bar.height,
             options.totalTime,
             options.currentTime,
-            isLight(song_data.dominantColor)
+            text_color === "#000"
         );
     }
 
