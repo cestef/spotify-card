@@ -96,7 +96,8 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true   , 
-    "typeRoots": ["./src/types"]                             /* Skip type checking all .d.ts files. */
+    "typeRoots": ["./src/types"]        ,
+    "types": ["node", "jest", "mocha"]                     /* Skip type checking all .d.ts files. */
   },
-  "include": ["src"]
+  "include": ["src", "index.test.ts"]
 }

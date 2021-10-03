@@ -2,21 +2,24 @@ import { generate } from "./src/index";
 import fs from "fs";
 import path from "path";
 
-describe("Spotify Card", () => {
-    let card: Buffer;
-
-    beforeEach(async () => {
-        card = await generate({
-            url: "https://open.spotify.com/track/5TuTT8Jz37Sd6Rna1ANuKu?si=4df3a210c1974537",
+describe("spotify-card", () => {
+    it("Generates correctly for Spotify", async () => {
+        const image = await generate({
+            url: "https://open.spotify.com/track/2shwfq9XQBHMnSnhPOJECa?si=82d3e13c789a4793",
         });
+        fs.writeFileSync(path.join("./", "testing", "spotify_card.png"), image);
     });
-    it("Returns a valid Buffer", () => {
-        expect(card).toBeInstanceOf(Buffer);
+
+    it("Generates correctly for SoundCloud", async () => {
+        const image = await generate({
+            url: "https://soundcloud.com/thekidlaroi/stay",
+        });
+        fs.writeFileSync(path.join("./", "testing", "soundcloud_card.png"), image);
     });
-    it("Generates a writable image", async () => {
-        const write = () => {
-            fs.writeFileSync(path.join(__dirname, "test_image.png"), card);
-        };
-        expect(write).not.toThrowError();
+    it("Generates correctly for Youtube", async () => {
+        const image = await generate({
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        });
+        fs.writeFileSync(path.join("./", "testing", "youtube_card.png"), image);
     });
 });
