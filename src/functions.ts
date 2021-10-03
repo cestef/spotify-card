@@ -1,3 +1,6 @@
+import { Util } from "soundcloud-scraper";
+import { parse } from "spotify-uri";
+
 export const roundRect = (
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -221,4 +224,18 @@ export const formatMilliseconds = (milliseconds: number, padStart: boolean = fal
     return hours
         ? `${padStart ? pad(hours) : hours}:${pad(minutes)}:${pad(seconds)}`
         : `${padStart ? pad(minutes) : minutes}:${pad(seconds)}`;
+};
+
+export const getSongType = (url: string): "spotify" | "soundcloud" | null => {
+    if (Util.validateURL(url, "track")) return "soundcloud";
+    try {
+        parse(url);
+    } catch {
+        return null;
+    }
+    return "spotify";
+};
+
+export const rgbToHex = (rgb: [number, number, number]) => {
+    return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
 };

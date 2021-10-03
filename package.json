@@ -13,7 +13,9 @@
         "prepublish": "tsc"
     },
     "dependencies": {
+        "colorthief": "^2.3.2",
         "skia-canvas": "^0.9.25",
+        "soundcloud-scraper": "^5.0.2",
         "spotify-uri": "^2.2.0",
         "spotify-url-info": "^2.2.3"
     },

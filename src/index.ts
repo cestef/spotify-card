@@ -1,6 +1,6 @@
 import { Canvas, loadImage, FontLibrary } from "skia-canvas";
 import { getData } from "spotify-url-info";
-import { parse } from "spotify-uri";
+import Colorthief from "colorthief";
 import {
     roundRect,
     roundedImage,
@@ -8,11 +8,13 @@ import {
     isLight,
     fittingString,
     progressBar,
-} from "./canvasFunctions";
-import { SpotifyRes, GenerateOptions } from "./types";
+    getSongType,
+} from "./functions";
+import { SpotifyRes, GenerateOptions, GenericSong } from "./types";
 import path from "path";
 import fs from "fs";
-import { formatMilliseconds } from "./canvasFunctions";
+import { formatMilliseconds, rgbToHex } from "./functions";
+import { Client } from "soundcloud-scraper";
 
 const defaultOptions = {
     width: 1200,
@@ -21,7 +23,6 @@ const defaultOptions = {
     progressBarHeight: 20,
     titleSize: 60,
     albumTitleSize: 45,
-    progressBar: false,
     imageRadius: 50,
     cardRadius: 25,
 };
@@ -39,28 +40,57 @@ const loadFonts = () => {
 };
 loadFonts();
 
+/**
+ * Generates a spotify card
+ */
 export const generate = async (options: GenerateOptions) => {
     options = { ...defaultOptions, ...options };
-
+    if (options.blurImage && typeof options.blurProgress === "undefined")
+        options.blurProgress = true;
     const canvas = new Canvas(options.width, options.height);
     const ctx = canvas.getContext("2d");
-    try {
-        parse(options.url);
-    } catch (e) {
-        throw new Error("Invalid Spotify URL: " + e);
+    const song_type = getSongType(options.url);
+    let song_data: GenericSong;
+    switch (song_type) {
+        case "soundcloud": {
+            const soundcloud_res = await new Client().getSongInfo(options.url, {
+                fetchEmbed: true,
+            });
+            const color = rgbToHex(await Colorthief.getColor(soundcloud_res.thumbnail));
+            song_data = {
+                title: soundcloud_res.title,
+                album: soundcloud_res.description,
+                cover: soundcloud_res.thumbnail,
+                platform: "soundcloud",
+                dominantColor: color,
+            };
+            break;
+        }
+        case "spotify": {
+            const spotify_res: SpotifyRes = await getData(options.url);
+            song_data = {
+                title: spotify_res.name,
+                album: spotify_res.album.name,
+                cover: spotify_res.album.images[0].url,
+                platform: "spotify",
+                dominantColor: spotify_res.dominantColor,
+            };
+            break;
+        }
+        default:
+            throw new Error("Invalid URL provided");
     }
-    const spotify_res: SpotifyRes = await getData(options.url);
 
-    spotify_res.dominantColor = options.neutralBackground
+    song_data.dominantColor = options.neutralBackground
         ? "#fff"
-        : pSBC(0.001, spotify_res.dominantColor);
+        : pSBC(0.001, song_data.dominantColor);
 
-    const text_color = isLight(spotify_res.dominantColor) ? "#000" : "#fff";
+    const text_color = isLight(song_data.dominantColor) ? "#000" : "#fff";
 
-    ctx.fillStyle = spotify_res.dominantColor;
+    ctx.fillStyle = song_data.dominantColor;
     roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
 
-    const image = await loadImage(spotify_res.album.images[0].url);
+    const image = await loadImage(song_data.cover);
     if (options.blurImage) {
         ctx.filter = "blur(30px)";
         ctx.drawImage(
@@ -86,14 +116,14 @@ export const generate = async (options: GenerateOptions) => {
     // Song title
     ctx.font = `bold ${options.titleSize}px NS`;
     ctx.fillStyle = text_color;
-    const title_metrics = ctx.measureText(spotify_res.name);
+    const title_metrics = ctx.measureText(song_data.title);
     const middle_second_part = (canvas.height - options.margin * 2) / 2;
     const title_height =
         options.margin * 1.5 +
         title_metrics.actualBoundingBoxAscent +
         title_metrics.actualBoundingBoxDescent;
     ctx.fillText(
-        fittingString(ctx, spotify_res.name, canvas.width - (canvas.height + options.margin * 3)),
+        fittingString(ctx, song_data.title, canvas.width - (canvas.height + options.margin * 3)),
         second_part_x,
         options.progressBar ? title_height : middle_second_part + options.margin / 2
     );
@@ -101,18 +131,14 @@ export const generate = async (options: GenerateOptions) => {
     // Album title
     ctx.font = `${options.albumTitleSize}px NS`;
     ctx.fillStyle = pSBC(-0.5, text_color);
-    const album_metrics = ctx.measureText(spotify_res.album.name);
+    const album_metrics = ctx.measureText(song_data.album);
     const album_height =
         title_height +
         options.margin +
         album_metrics.actualBoundingBoxAscent +
         album_metrics.actualBoundingBoxDescent;
     ctx.fillText(
-        fittingString(
-            ctx,
-            spotify_res.album.name,
-            canvas.width - (canvas.height + options.margin * 3)
-        ),
+        fittingString(ctx, song_data.album, canvas.width - (canvas.height + options.margin * 3)),
         second_part_x,
         options.progressBar
             ? album_height
@@ -151,9 +177,9 @@ export const generate = async (options: GenerateOptions) => {
             second_part_x + progress_bar.width - (ctx.measureText(total_formatted).width / 3) * 2,
             progress_text_y
         );
-        if (options.blurImage) {
-            ctx.shadowBlur = 80;
-            ctx.shadowColor = pSBC(isLight(text_color) ? -0.8 : 0.02, text_color);
+        if (options.blurProgress) {
+            ctx.shadowBlur = isLight(text_color) ? 30 : 80;
+            ctx.shadowColor = pSBC(isLight(text_color) ? -0.7 : 0.02, text_color);
         }
         // Progress bar
         progressBar(
@@ -164,7 +190,7 @@ export const generate = async (options: GenerateOptions) => {
             progress_bar.height,
             options.totalTime,
             options.currentTime,
-            isLight(spotify_res.dominantColor)
+            isLight(song_data.dominantColor)
         );
     }
 
