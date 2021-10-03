@@ -1,5 +1,7 @@
 import { Util } from "soundcloud-scraper";
 import { parse } from "spotify-uri";
+import { validateURL } from "ytdl-core";
+import { Platform } from "./types/index";
 
 export const roundRect = (
     ctx: CanvasRenderingContext2D,
@@ -147,7 +149,7 @@ export const isLight = (color: string) => {
     let r: any, g: any, b: any, color_match: any, hsp: number;
     // Check the format of the color, HEX or RGB?
     if (color.match(/^rgb/)) {
-        // If HEX --> store the red, green, blue values in separate variables
+        // If HEX --> store the red, green, blue values in separate letiables
         color_match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
 
         r = color_match[1];
@@ -169,14 +171,19 @@ export const isLight = (color: string) => {
     return hsp > 127.5;
 };
 
-export const fittingString = (c: CanvasRenderingContext2D, str: string, maxWidth: number) => {
-    var width = c.measureText(str).width;
-    var ellipsis = "…";
-    var ellipsisWidth = c.measureText(ellipsis).width;
+export const fittingString = (
+    c: CanvasRenderingContext2D,
+    str: string,
+    maxWidth: number,
+    ellipsis?: string
+) => {
+    let width = c.measureText(str).width;
+    if (typeof ellipsis === "undefined") ellipsis = "…";
+    let ellipsisWidth = c.measureText(ellipsis).width;
     if (width <= maxWidth || width <= ellipsisWidth) {
         return str;
     } else {
-        var len = str.length;
+        let len = str.length;
         while (width >= maxWidth - ellipsisWidth && len-- > 0) {
             str = str.substring(0, len);
             width = c.measureText(str).width;
@@ -226,8 +233,9 @@ export const formatMilliseconds = (milliseconds: number, padStart: boolean = fal
         : `${padStart ? pad(minutes) : minutes}:${pad(seconds)}`;
 };
 
-export const getSongType = (url: string): "spotify" | "soundcloud" | null => {
+export const getSongType = (url: string): Platform | null => {
     if (Util.validateURL(url, "track")) return "soundcloud";
+    if (validateURL(url)) return "youtube";
     try {
         parse(url);
     } catch {

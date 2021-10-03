@@ -15,6 +15,7 @@ import path from "path";
 import fs from "fs";
 import { formatMilliseconds, rgbToHex } from "./functions";
 import { Client } from "soundcloud-scraper";
+import { getBasicInfo, getInfo } from "ytdl-core";
 
 const defaultOptions = {
     width: 1200,
@@ -77,6 +78,19 @@ export const generate = async (options: GenerateOptions) => {
             };
             break;
         }
+        case "youtube": {
+            const youtube_res = await getBasicInfo(options.url);
+            const cover = `https://i.ytimg.com/vi/${youtube_res.videoDetails.videoId}/hqdefault.jpg`;
+            const color = rgbToHex(await Colorthief.getColor(cover));
+            song_data = {
+                title: youtube_res.videoDetails.title,
+                album: "",
+                cover,
+                platform: "youtube",
+                dominantColor: color,
+            };
+            break;
+        }
         default:
             throw new Error("Invalid URL provided");
     }
@@ -93,15 +107,18 @@ export const generate = async (options: GenerateOptions) => {
     } else {
         const width = canvas.width;
         const height = (canvas.width / image.width) * image.height;
+
         //Gradient to darken the image and make the text more readable
         const gradient = ctx.createLinearGradient(0, canvas.height, canvas.width, canvas.height);
-        gradient.addColorStop(1, "#1e1e1e20");
+        gradient.addColorStop(1, "#1e1e1e30");
         gradient.addColorStop(0, "#1e1e1e60");
+
         ctx.save();
         roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
         ctx.clip();
         ctx.drawImage(image, 0, -height / 2, width, height);
         ctx.restore();
+
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -137,11 +154,53 @@ export const generate = async (options: GenerateOptions) => {
         options.margin * 1.5 +
         title_metrics.actualBoundingBoxAscent +
         title_metrics.actualBoundingBoxDescent;
-    ctx.fillText(
-        fittingString(ctx, song_data.title, canvas.width - (canvas.height + options.margin * 3)),
-        second_part_x,
-        options.progressBar ? title_height : middle_second_part + options.margin / 2
-    );
+    if (song_data.platform === "youtube") {
+        const first_part = fittingString(
+            ctx,
+            song_data.title,
+            canvas.width - (canvas.height + options.margin * 3),
+            "-"
+        );
+        if (first_part.endsWith("-")) {
+            const second_part = fittingString(
+                ctx,
+                song_data.title.split(first_part.slice(-1))[1].trim(),
+                canvas.width - (canvas.height + options.margin * 3)
+            );
+            const album_metrics = ctx.measureText(second_part);
+            const album_height =
+                title_height +
+                options.margin +
+                album_metrics.actualBoundingBoxAscent +
+                album_metrics.actualBoundingBoxDescent;
+            ctx.fillText(
+                second_part,
+                second_part_x,
+                options.progressBar
+                    ? album_height
+                    : middle_second_part +
+                          album_metrics.actualBoundingBoxAscent +
+                          album_metrics.actualBoundingBoxDescent +
+                          options.margin * 1.5
+            );
+        }
+
+        ctx.fillText(
+            first_part,
+            second_part_x,
+            options.progressBar ? title_height : middle_second_part + options.margin / 2
+        );
+    } else {
+        ctx.fillText(
+            fittingString(
+                ctx,
+                song_data.title,
+                canvas.width - (canvas.height + options.margin * 3)
+            ),
+            second_part_x,
+            options.progressBar ? title_height : middle_second_part + options.margin / 2
+        );
+    }
 
     // Album title
     ctx.font = `${options.albumTitleSize}px NS`;

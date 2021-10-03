@@ -108,5 +108,7 @@ export interface GenericSong {
     title: string;
     album: string;
     dominantColor: string;
-    platform: "spotify" | "soundcloud";
+    platform: Platform;
 }
+
+export type Platform = "spotify" | "soundcloud" | "youtube";

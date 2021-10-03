@@ -17,7 +17,8 @@
         "skia-canvas": "^0.9.25",
         "soundcloud-scraper": "^5.0.2",
         "spotify-uri": "^2.2.0",
-        "spotify-url-info": "^2.2.3"
+        "spotify-url-info": "^2.2.3",
+        "ytdl-core": "^4.9.1"
     },
     "devDependencies": {
         "@types/jest": "^27.0.2",
