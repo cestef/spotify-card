@@ -1,3 +1,5 @@
+![Preview](test_image.png)
+
 # spotify-card
 
 ## Table of Contents
