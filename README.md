@@ -13,7 +13,7 @@ This is a nodejs utility to generate song embeds using [skia-canvas](https://git
 
 The package is named `spotify-card` because I wanted to only add spotify support at the beginning but I ended up adding support for other platforms. 
 
-Currently supported plaforms: `Spotify`, `Soundcloud`
+Currently supported plaforms: `Spotify`, `Soundcloud`, `Youtube`
 
 ## Prerequisites <a name = "prerequisites"></a>
 
