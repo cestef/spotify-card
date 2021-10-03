@@ -1,6 +1,6 @@
 {
     "name": "spotify-card",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "main": "dist/index.js",
     "license": "MIT",
     "types": "dist/index.d.ts",
