@@ -1,3 +1,5 @@
+ Generate song embeds easily !
+ 
 ![Preview](media/preview.png)
 
 # spotify-card
