@@ -3,6 +3,7 @@ import { parse } from "spotify-uri";
 import { validateURL } from "ytdl-core";
 import { Platform } from "./types/index";
 
+//From https://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-using-html-canvas
 export const roundRect = (
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -55,7 +56,7 @@ export const roundedImage = (
     ctx.drawImage(image, x, y, width, height);
     ctx.restore();
 };
-
+//https://github.com/PimpTrizkit/PJs/wiki/12.-Shade,-Blend-and-Convert-a-Web-Color-(pSBC.js)
 export const pSBC = (p: number, c0: string, c1?: string, l?: boolean) => {
     let r,
         g,
@@ -211,7 +212,7 @@ export const progressBar = (
     ctx.fill();
     ctx.closePath();
 };
-
+// From https://stackoverflow.com/questions/19700283/how-to-convert-time-in-milliseconds-to-hours-min-sec-format-in-javascript/67462589#67462589
 export const formatMilliseconds = (milliseconds: number, padStart: boolean = false) => {
     const pad = (num: number) => {
         return `${num}`.padStart(2, "0");
@@ -243,7 +244,7 @@ export const getSongType = (url: string): Platform | null => {
     }
     return "spotify";
 };
-
+//From https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 export const rgbToHex = (rgb: [number, number, number]) => {
     return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
 };

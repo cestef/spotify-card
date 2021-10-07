@@ -26,6 +26,7 @@ const defaultOptions = {
     albumTitleSize: 45,
     imageRadius: 50,
     cardRadius: 25,
+    progressFontSize: 30,
 };
 
 const FONTS = [{ path: "Noto_Sans_KR", name: "NS" }];
@@ -50,49 +51,73 @@ export const generate = async (options: GenerateOptions) => {
         options.blurProgress = true;
     const canvas = new Canvas(options.width, options.height);
     const ctx = canvas.getContext("2d");
-    const song_type = getSongType(options.url);
+    const song_type = options.platform || getSongType(options.url);
     let song_data: GenericSong;
     switch (song_type) {
         case "soundcloud": {
-            const soundcloud_res = await new Client().getSongInfo(options.url, {
-                fetchEmbed: true,
-            });
-            const color = rgbToHex(await Colorthief.getColor(soundcloud_res.thumbnail));
-            song_data = {
-                title: soundcloud_res.title,
-                album: soundcloud_res.description,
-                cover: soundcloud_res.thumbnail,
-                platform: "soundcloud",
-                dominantColor: color,
-            };
+            try {
+                const soundcloud_res = await new Client().getSongInfo(options.url, {
+                    fetchEmbed: true,
+                });
+                const color = rgbToHex(await Colorthief.getColor(soundcloud_res.thumbnail));
+                song_data = {
+                    title: soundcloud_res.title,
+                    album: soundcloud_res.description,
+                    cover: soundcloud_res.thumbnail,
+                    platform: "soundcloud",
+                    dominantColor: color,
+                };
+            } catch (e) {
+                console.error(
+                    "Error when fetching song from soundcloud, are you sure the link you provided is correct ?",
+                    e
+                );
+            }
+
             break;
         }
         case "spotify": {
-            const spotify_res: SpotifyRes = await getData(options.url);
-            song_data = {
-                title: spotify_res.name,
-                album: spotify_res.album.name,
-                cover: spotify_res.album.images[0].url,
-                platform: "spotify",
-                dominantColor: spotify_res.dominantColor,
-            };
+            try {
+                const spotify_res: SpotifyRes = await getData(options.url);
+                song_data = {
+                    title: spotify_res.name,
+                    album: spotify_res.album.name,
+                    cover: spotify_res.album.images[0].url,
+                    platform: "spotify",
+                    dominantColor: spotify_res.dominantColor,
+                };
+            } catch (e) {
+                console.error(
+                    "Error when fetching song from spotify, are you sure the link you provided is correct ?",
+                    e
+                );
+            }
             break;
         }
         case "youtube": {
-            const youtube_res = await getBasicInfo(options.url);
-            const cover = `https://i.ytimg.com/vi/${youtube_res.videoDetails.videoId}/hqdefault.jpg`;
-            const color = rgbToHex(await Colorthief.getColor(cover));
-            song_data = {
-                title: youtube_res.videoDetails.title,
-                album: "",
-                cover,
-                platform: "youtube",
-                dominantColor: color,
-            };
+            try {
+                const youtube_res = await getBasicInfo(options.url);
+                const cover = `https://i.ytimg.com/vi/${youtube_res.videoDetails.videoId}/hqdefault.jpg`;
+                const color = rgbToHex(await Colorthief.getColor(cover));
+                song_data = {
+                    title: youtube_res.videoDetails.title,
+                    album: "",
+                    cover,
+                    platform: "youtube",
+                    dominantColor: color,
+                };
+            } catch (e) {
+                console.error(
+                    "Error when fetching song from youtube, are you sure the link you provided is correct ?",
+                    e
+                );
+            }
             break;
         }
         default:
-            throw new Error("Invalid URL provided");
+            throw new Error(
+                'The URL provided did not match any platform, you can pass the "platform" parameter if you want to force the detection'
+            );
     }
 
     song_data.dominantColor = options.neutralBackground
@@ -159,6 +184,7 @@ export const generate = async (options: GenerateOptions) => {
         title_metrics.actualBoundingBoxAscent +
         title_metrics.actualBoundingBoxDescent;
     if (song_data.platform === "youtube") {
+        //Since we have no album for youtube, we can put the title on 2 lines
         const first_part = fittingString(
             ctx,
             song_data.title,
@@ -166,6 +192,7 @@ export const generate = async (options: GenerateOptions) => {
             "-"
         );
         if (first_part.endsWith("-")) {
+            //If the text doesn't fit on one line, split it in 2 parts
             const second_part = fittingString(
                 ctx,
                 song_data.title.split(first_part.slice(0, -1))[1].trim(),
@@ -195,6 +222,7 @@ export const generate = async (options: GenerateOptions) => {
             options.progressBar ? title_height : middle_second_part + options.margin / 2
         );
     } else {
+        //Just write the text normally for other platforms
         ctx.fillText(
             fittingString(
                 ctx,
@@ -240,15 +268,16 @@ export const generate = async (options: GenerateOptions) => {
             height: 20,
         };
 
-        ctx.font = `30px NS`;
+        ctx.font = `${options.progressFontSize}px NS`;
         ctx.fillStyle = text_color;
+        //Get the current time in youtube-like format
         const current_formatted = formatMilliseconds(options.currentTime);
         ctx.fillText(
             current_formatted,
             second_part_x - ctx.measureText(current_formatted).width / 3,
             progress_text_y
         );
-
+        //Get the total time in youtube-like format
         const total_formatted = formatMilliseconds(options.totalTime);
         ctx.fillText(
             total_formatted,
@@ -258,9 +287,11 @@ export const generate = async (options: GenerateOptions) => {
 
         // Progress bar
         if (options.blurProgress) {
+            // Set a wider spread for darker cards for a better result
             ctx.shadowBlur = isLight(text_color) ? 30 : 80;
             ctx.shadowColor = pSBC(isLight(text_color) ? -0.7 : 0.02, text_color);
         }
+        //Draw the progress bar
         progressBar(
             ctx,
             progress_bar.x,
@@ -273,6 +304,7 @@ export const generate = async (options: GenerateOptions) => {
         );
     }
 
+    //Skia property directly returning the png Buffer
     return canvas.png;
 };
 

@@ -65,6 +65,14 @@ export interface GenerateOptions {
      * Whether to set or not the album cover as the background
      */
     coverBackground?: boolean;
+    /**
+     * Specify this if you want to force the platform detection
+     */
+    platform?: Platform;
+    /**
+     * Font size for the progress text, default `30`
+     */
+    progressFontSize?: number;
 }
 
 export interface SpotifyAlbum {
