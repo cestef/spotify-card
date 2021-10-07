@@ -16,6 +16,7 @@ import fs from "fs";
 import { formatMilliseconds, rgbToHex } from "./functions";
 import { Client } from "soundcloud-scraper";
 import { getBasicInfo, getInfo } from "ytdl-core";
+import { Platform } from "./types/index";
 
 const defaultOptions = {
     width: 1200,
@@ -308,4 +309,4 @@ export const generate = async (options: GenerateOptions) => {
     return canvas.png;
 };
 
-export { GenerateOptions };
+export { GenerateOptions, Platform };
