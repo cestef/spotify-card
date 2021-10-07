@@ -5,6 +5,14 @@
     "main": "dist/index.js",
     "license": "MIT",
     "types": "dist/index.d.ts",
+    "keywords": [
+        "spotify",
+        "card",
+        "youtube",
+        "soundcloud",
+        "canvas",
+        "embed"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/cstefFlexin/spotify-card"
