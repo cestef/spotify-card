@@ -52,6 +52,7 @@ export const generate = async (options: GenerateOptions) => {
         options.blurProgress = true;
     const canvas = new Canvas(options.width, options.height);
     const ctx = canvas.getContext("2d");
+
     const song_type = options.platform || getSongType(options.url);
     let song_data: GenericSong;
     switch (song_type) {
@@ -62,6 +63,7 @@ export const generate = async (options: GenerateOptions) => {
                 });
                 const color = rgbToHex(await Colorthief.getColor(soundcloud_res.thumbnail));
                 song_data = {
+                    artist: soundcloud_res.author.name,
                     title: soundcloud_res.title,
                     album: soundcloud_res.description,
                     cover: soundcloud_res.thumbnail,
@@ -81,6 +83,7 @@ export const generate = async (options: GenerateOptions) => {
             try {
                 const spotify_res: SpotifyRes = await getData(options.url);
                 song_data = {
+                    artist: spotify_res.artists[0].name,
                     title: spotify_res.name,
                     album: spotify_res.album.name,
                     cover: spotify_res.album.images[0].url,
@@ -101,6 +104,7 @@ export const generate = async (options: GenerateOptions) => {
                 const cover = `https://i.ytimg.com/vi/${youtube_res.videoDetails.videoId}/hqdefault.jpg`;
                 const color = rgbToHex(await Colorthief.getColor(cover));
                 song_data = {
+                    artist: youtube_res.videoDetails.author.name,
                     title: youtube_res.videoDetails.title,
                     album: "",
                     cover,
@@ -121,16 +125,18 @@ export const generate = async (options: GenerateOptions) => {
             );
     }
 
-    song_data.dominantColor = options.neutralBackground
-        ? "#fff"
-        : pSBC(0.001, song_data.dominantColor);
+    song_data.dominantColor = options.background || pSBC(0.001, song_data.dominantColor);
     const image = await loadImage(song_data.cover);
-
-    const text_color = options.coverBackground
+    const is_image_light = isLight(song_data.dominantColor);
+    const text_color = options.adaptiveTextcolor
+        ? pSBC(is_image_light ? -0.9 : 0.7, song_data.dominantColor)
+        : options.coverBackground
         ? "#fff"
-        : isLight(song_data.dominantColor)
+        : is_image_light
         ? "#000"
         : "#fff";
+    console.log(text_color);
+    const is_text_light = isLight(text_color);
     if (!options.coverBackground) {
         ctx.fillStyle = song_data.dominantColor;
         roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
@@ -289,8 +295,8 @@ export const generate = async (options: GenerateOptions) => {
         // Progress bar
         if (options.blurProgress) {
             // Set a wider spread for darker cards for a better result
-            ctx.shadowBlur = isLight(text_color) ? 30 : 80;
-            ctx.shadowColor = pSBC(isLight(text_color) ? -0.7 : 0.02, text_color);
+            ctx.shadowBlur = is_text_light ? 30 : 80;
+            ctx.shadowColor = pSBC(is_text_light ? -0.7 : 0.02, text_color);
         }
         //Draw the progress bar
         progressBar(
@@ -301,7 +307,7 @@ export const generate = async (options: GenerateOptions) => {
             progress_bar.height,
             options.totalTime,
             options.currentTime,
-            text_color === "#000"
+            is_image_light
         );
     }
 

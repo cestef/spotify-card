@@ -58,9 +58,9 @@ export interface GenerateOptions {
      */
     cardRadius?: number;
     /**
-     * Whether to set or not the background to a neutral color (white)
+     * Color for the background
      */
-    neutralBackground?: boolean;
+    background?: string;
     /**
      * Whether to set or not the album cover as the background
      */
@@ -73,6 +73,10 @@ export interface GenerateOptions {
      * Font size for the progress text, default `30`
      */
     progressFontSize?: number;
+    /**
+     * Whether to set the text color relatively to the background or just to pick between black and white
+     */
+    adaptiveTextcolor?: boolean;
 }
 
 export interface SpotifyAlbum {
@@ -112,6 +116,7 @@ export interface SpotifyRes {
 }
 
 export interface GenericSong {
+    artist: string;
     cover: string;
     title: string;
     album: string;
