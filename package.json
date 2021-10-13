@@ -1,6 +1,6 @@
 {
     "name": "spotify-card",
-    "version": "1.0.15",
+    "version": "1.0.16",
     "homepage": "https://spotify-card.cstef.dev/",
     "main": "dist/index.js",
     "license": "MIT",
