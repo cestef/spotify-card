@@ -1,7 +1,9 @@
 import { Util } from "soundcloud-scraper";
 import { parse } from "spotify-uri";
 import { validateURL } from "ytdl-core";
-import { Platform } from "./types/index";
+import { Platform, DeezerRes } from "./types/index";
+import axios from "axios";
+const deezerRegexp = /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?track\/(\d+)/;
 
 //From https://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-using-html-canvas
 export const roundRect = (
@@ -237,14 +239,23 @@ export const formatMilliseconds = (milliseconds: number, padStart: boolean = fal
 export const getSongType = (url: string): Platform | null => {
     if (Util.validateURL(url, "track")) return "soundcloud";
     if (validateURL(url)) return "youtube";
+    if (deezerRegexp.test(url)) return "deezer";
     try {
         parse(url);
+        return "spotify";
     } catch {
         return null;
     }
-    return "spotify";
 };
 //From https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 export const rgbToHex = (rgb: [number, number, number]) => {
     return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+};
+
+export const getDeezerTrack = async (url: string) => {
+    const [_, id] = url.match(deezerRegexp) || [];
+    if (!id) throw new Error("Invalid Deezer URL provided");
+    return (await (
+        await axios({ url: `https://api.deezer.com/track/${id}`, method: "GET" })
+    ).data) as DeezerRes;
 };

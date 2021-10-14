@@ -13,10 +13,10 @@ import {
 import { SpotifyRes, GenerateOptions, GenericSong } from "./types";
 import path from "path";
 import fs from "fs";
-import { formatMilliseconds, rgbToHex } from "./functions";
+import { formatMilliseconds, rgbToHex, getDeezerTrack } from "./functions";
 import { Client } from "soundcloud-scraper";
 import { getBasicInfo, getInfo } from "ytdl-core";
-import { Platform } from "./types/index";
+import { Platform, DeezerRes } from "./types/index";
 
 const defaultOptions = {
     width: 1200,
@@ -114,6 +114,26 @@ export const generate = async (options: GenerateOptions) => {
             } catch (e) {
                 console.error(
                     "Error when fetching song from youtube, are you sure the link you provided is correct ?",
+                    e
+                );
+            }
+            break;
+        }
+        case "deezer": {
+            try {
+                const deezer_res = await getDeezerTrack(options.url);
+                const color = rgbToHex(await Colorthief.getColor(deezer_res.album.cover_xl));
+                song_data = {
+                    artist: deezer_res.artist.name,
+                    title: deezer_res.title,
+                    album: deezer_res.album.title,
+                    cover: deezer_res.album.cover_xl,
+                    platform: "deezer",
+                    dominantColor: color,
+                };
+            } catch (e) {
+                console.error(
+                    "Error when fetching song from deezer, are you sure the link you provided is correct ?",
                     e
                 );
             }

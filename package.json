@@ -11,7 +11,9 @@
         "youtube",
         "soundcloud",
         "canvas",
-        "embed"
+        "embed",
+        "now-playing",
+        "discord"
     ],
     "repository": {
         "type": "git",
@@ -22,6 +24,7 @@
         "prepublish": "tsc"
     },
     "dependencies": {
+        "axios": "^0.23.0",
         "colorthief": "^2.3.2",
         "skia-canvas": "^0.9.25",
         "soundcloud-scraper": "^5.0.2",
