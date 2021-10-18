@@ -1,5 +1,3 @@
-import { ArtistsEntity } from "spotify-url-info";
-
 export interface GenerateOptions {
     /**
      * Spotify URL or URI
@@ -197,4 +195,66 @@ export interface DeezerAlbum {
     release_date: string;
     tracklist: string;
     type: string;
+}
+
+export interface YoutubeRes {
+    videoId: string;
+    title: string;
+    lengthSeconds: string;
+    keywords: string[];
+    channelId: string;
+    isOwnerViewing: boolean;
+    shortDescription: string;
+    isCrawlable: boolean;
+    thumbnail: {
+        thumbnails: {
+            url: string;
+            width: number;
+            height: number;
+        }[];
+    };
+    averageRating: number;
+    allowRatings: boolean;
+    viewCount: string;
+    author: string;
+    isPrivate: boolean;
+    isUnpluggedCorpus: boolean;
+    isLiveContent: boolean;
+}
+
+export interface ArtistsEntity {
+    external_urls: ExternalUrls;
+    href: string;
+    id: string;
+    name: string;
+    type: string;
+    uri: string;
+}
+export interface ExternalUrls {
+    spotify: string;
+}
+
+export interface SoundCloudRes {
+    id: string;
+    title: string;
+    description: string;
+    thumbnail: string;
+    url: string;
+    duration: string;
+    playCount: string;
+    commentsCount: string;
+    likes: string;
+    genre: string;
+    author: {
+        name: string;
+        username: string;
+        verified: boolean;
+        followers: number;
+        following: number;
+        avatarURL: string;
+        url: string;
+    };
+    publishedAt: Date;
+    embedURL: string;
+    trackURL: string;
 }

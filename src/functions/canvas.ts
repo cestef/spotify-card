@@ -1,9 +1,6 @@
-import { Util } from "soundcloud-scraper";
-import { parse } from "spotify-uri";
-import { validateURL } from "ytdl-core";
-import { Platform, DeezerRes } from "./types/index";
-import axios from "axios";
-const deezerRegexp = /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?track\/(\d+)/;
+import { FontLibrary } from "skia-canvas";
+import path from "path";
+import fs from "fs";
 
 //From https://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-using-html-canvas
 export const roundRect = (
@@ -214,48 +211,14 @@ export const progressBar = (
     ctx.fill();
     ctx.closePath();
 };
-// From https://stackoverflow.com/questions/19700283/how-to-convert-time-in-milliseconds-to-hours-min-sec-format-in-javascript/67462589#67462589
-export const formatMilliseconds = (milliseconds: number, padStart: boolean = false) => {
-    const pad = (num: number) => {
-        return `${num}`.padStart(2, "0");
-    };
 
-    let asSeconds = milliseconds / 1000;
-
-    let hours = undefined;
-    let minutes = Math.floor(asSeconds / 60);
-    let seconds = Math.floor(asSeconds % 60);
-
-    if (minutes > 59) {
-        hours = Math.floor(minutes / 60);
-        minutes %= 60;
-    }
-
-    return hours
-        ? `${padStart ? pad(hours) : hours}:${pad(minutes)}:${pad(seconds)}`
-        : `${padStart ? pad(minutes) : minutes}:${pad(seconds)}`;
-};
-
-export const getSongType = (url: string): Platform | null => {
-    if (Util.validateURL(url, "track")) return "soundcloud";
-    if (validateURL(url)) return "youtube";
-    if (deezerRegexp.test(url)) return "deezer";
-    try {
-        parse(url);
-        return "spotify";
-    } catch {
-        return null;
-    }
-};
-//From https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-export const rgbToHex = (rgb: [number, number, number]) => {
-    return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
-};
-
-export const getDeezerTrack = async (url: string) => {
-    const [_, id] = url.match(deezerRegexp) || [];
-    if (!id) throw new Error("Invalid Deezer URL provided");
-    return (await (
-        await axios({ url: `https://api.deezer.com/track/${id}`, method: "GET" })
-    ).data) as DeezerRes;
+export const loadFonts = (FONTS: { path: string; name: string }[]) => {
+    FONTS.forEach((f) =>
+        FontLibrary.use(
+            f.name,
+            fs
+                .readdirSync(path.join(__dirname, "..", "..", "fonts", f.path))
+                .map((e) => `fonts/${f}/${e}`)
+        )
+    );
 };

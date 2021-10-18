@@ -1,6 +1,4 @@
-import { Canvas, loadImage, FontLibrary } from "skia-canvas";
-import { getData } from "spotify-url-info";
-import Colorthief from "colorthief";
+import { Canvas, loadImage } from "skia-canvas";
 import {
     roundRect,
     roundedImage,
@@ -8,40 +6,15 @@ import {
     isLight,
     fittingString,
     progressBar,
-    getSongType,
-} from "./functions";
-import { SpotifyRes, GenerateOptions, GenericSong } from "./types";
-import path from "path";
-import fs from "fs";
-import { formatMilliseconds, rgbToHex, getDeezerTrack } from "./functions";
-import { Client } from "soundcloud-scraper";
-import { getBasicInfo, getInfo } from "ytdl-core";
-import { Platform, DeezerRes } from "./types/index";
+    loadFonts,
+} from "./functions/canvas";
+import { GenerateOptions } from "./types";
+import { getSongType, formatMilliseconds } from "./functions";
+import { Platform } from "./types";
+import { getTrackData } from "./functions/index";
+import { defaultOptions } from "./constants";
 
-const defaultOptions = {
-    width: 1200,
-    height: 400,
-    margin: 40,
-    progressBarHeight: 20,
-    titleSize: 60,
-    albumTitleSize: 45,
-    imageRadius: 50,
-    cardRadius: 25,
-    progressFontSize: 30,
-};
-
-const FONTS = [{ path: "Noto_Sans_KR", name: "NS" }];
-const loadFonts = () => {
-    FONTS.forEach((f) =>
-        FontLibrary.use(
-            "NS",
-            fs
-                .readdirSync(path.join(__dirname, "../", "fonts", f.path))
-                .map((e) => `fonts/${f}/${e}`)
-        )
-    );
-};
-loadFonts();
+loadFonts([{ path: "Noto_Sans_KR", name: "NS" }]);
 
 /**
  * Generates a spotify card
@@ -54,96 +27,7 @@ export const generate = async (options: GenerateOptions) => {
     const ctx = canvas.getContext("2d");
 
     const song_type = options.platform || getSongType(options.url);
-    let song_data: GenericSong;
-    switch (song_type) {
-        case "soundcloud": {
-            try {
-                const soundcloud_res = await new Client().getSongInfo(options.url, {
-                    fetchEmbed: true,
-                });
-                const color = rgbToHex(await Colorthief.getColor(soundcloud_res.thumbnail));
-                song_data = {
-                    artist: soundcloud_res.author.name,
-                    title: soundcloud_res.title,
-                    album: soundcloud_res.description,
-                    cover: soundcloud_res.thumbnail,
-                    platform: "soundcloud",
-                    dominantColor: color,
-                };
-            } catch (e) {
-                console.error(
-                    "Error when fetching song from soundcloud, are you sure the link you provided is correct ?",
-                    e
-                );
-            }
-
-            break;
-        }
-        case "spotify": {
-            try {
-                const spotify_res: SpotifyRes = await getData(options.url);
-                song_data = {
-                    artist: spotify_res.artists[0].name,
-                    title: spotify_res.name,
-                    album: spotify_res.album.name,
-                    cover: spotify_res.album.images[0].url,
-                    platform: "spotify",
-                    dominantColor: spotify_res.dominantColor,
-                };
-            } catch (e) {
-                console.error(
-                    "Error when fetching song from spotify, are you sure the link you provided is correct ?",
-                    e
-                );
-            }
-            break;
-        }
-        case "youtube": {
-            try {
-                const youtube_res = await getBasicInfo(options.url);
-                const cover = `https://i.ytimg.com/vi/${youtube_res.videoDetails.videoId}/hqdefault.jpg`;
-                const color = rgbToHex(await Colorthief.getColor(cover));
-                song_data = {
-                    artist: youtube_res.videoDetails.author.name,
-                    title: youtube_res.videoDetails.title,
-                    album: "",
-                    cover,
-                    platform: "youtube",
-                    dominantColor: color,
-                };
-            } catch (e) {
-                console.error(
-                    "Error when fetching song from youtube, are you sure the link you provided is correct ?",
-                    e
-                );
-            }
-            break;
-        }
-        case "deezer": {
-            try {
-                const deezer_res = await getDeezerTrack(options.url);
-                const color = rgbToHex(await Colorthief.getColor(deezer_res.album.cover_xl));
-                song_data = {
-                    artist: deezer_res.artist.name,
-                    title: deezer_res.title,
-                    album: deezer_res.album.title,
-                    cover: deezer_res.album.cover_xl,
-                    platform: "deezer",
-                    dominantColor: color,
-                };
-            } catch (e) {
-                console.error(
-                    "Error when fetching song from deezer, are you sure the link you provided is correct ?",
-                    e
-                );
-            }
-            break;
-        }
-        default:
-            throw new Error(
-                'The URL provided did not match any platform, you can pass the "platform" parameter if you want to force the detection'
-            );
-    }
+    let song_data = await getTrackData(song_type, options.url);
 
     song_data.dominantColor = options.background || pSBC(0.001, song_data.dominantColor);
     const image = await loadImage(song_data.cover);
@@ -155,7 +39,6 @@ export const generate = async (options: GenerateOptions) => {
         : is_image_light
         ? "#000"
         : "#fff";
-    console.log(text_color);
     const is_text_light = isLight(text_color);
     if (!options.coverBackground) {
         ctx.fillStyle = song_data.dominantColor;

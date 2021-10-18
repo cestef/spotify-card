@@ -20,24 +20,19 @@
         "url": "https://github.com/cstefFlexin/spotify-card"
     },
     "scripts": {
-        "test": "yarn jest",
-        "prepublish": "tsc"
+        "test": "yarn jest index.test.ts"
     },
     "dependencies": {
         "axios": "^0.23.0",
+        "cheerio": "^1.0.0-rc.10",
         "colorthief": "^2.3.2",
-        "skia-canvas": "^0.9.25",
-        "soundcloud-scraper": "^5.0.2",
-        "spotify-uri": "^2.2.0",
-        "spotify-url-info": "^2.2.3",
-        "ytdl-core": "^4.9.1"
+        "himalaya": "^1.1.0",
+        "skia-canvas": "^0.9.25"
     },
     "devDependencies": {
         "@types/jest": "^27.0.2",
-        "@types/mocha": "^9.0.0",
         "@types/skia-canvas": "^0.9.2",
         "jest": "^27.2.3",
-        "mocha": "^9.1.2",
         "ts-jest": "^27.0.5",
         "typescript": "^4.4.3"
     }
