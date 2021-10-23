@@ -3,3 +3,5 @@ index.test.ts
 jsconfig.json
 tsconfig.json
 media/
+.github/
+src/
