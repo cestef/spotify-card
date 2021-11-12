@@ -303,3 +303,20 @@ export const getTrackData = async (song_type: Platform, url: string) => {
     }
     return song_data;
 };
+export const isValidSongData = (songData: any): boolean | string => {
+    const keys = {
+        cover: "string",
+        title: "string",
+        album: "string?",
+        dominantColor: "string?",
+        platform: "string?",
+    };
+
+    for (let key in keys) {
+        if (!keys[key].endsWith("?")) {
+            if (!songData[key]) return key;
+            if (typeof songData[key] !== keys[key].replace("?", "")) return key;
+        }
+    }
+    return true;
+};

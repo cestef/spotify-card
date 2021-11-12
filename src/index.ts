@@ -8,11 +8,11 @@ import {
     progressBar,
     loadFonts,
 } from "./functions/canvas";
-import { GenerateOptions } from "./types";
-import { getSongType, formatMilliseconds } from "./functions";
-import { Platform } from "./types";
-import { getTrackData } from "./functions/index";
+import { GenerateOptions, GenericSong, Platform } from "./types";
+import { getSongType, formatMilliseconds, getTrackData, rgbToHex } from "./functions";
 import { defaultOptions } from "./constants";
+import { isValidSongData } from "./functions/index";
+import Colorthief from "colorthief";
 
 loadFonts([{ path: "Noto_Sans_KR", name: "NS" }]);
 
@@ -26,9 +26,26 @@ export const generate = async (options: GenerateOptions) => {
     const canvas = new Canvas(options.width, options.height);
     const ctx = canvas.getContext("2d");
 
-    const song_type = options.platform || getSongType(options.url);
-    let song_data = await getTrackData(song_type, options.url);
-
+    let song_data: GenericSong;
+    if (typeof options.songData !== "undefined") {
+        const valid_song_data = isValidSongData(options.songData);
+        if (typeof valid_song_data === "string")
+            throw new Error("Invalid song data: " + valid_song_data);
+        song_data = {
+            title: options.songData.title,
+            album: options.songData.album || "",
+            cover: options.songData.cover,
+            dominantColor:
+                options.songData.dominantColor ||
+                rgbToHex(await Colorthief.getColor(options.songData.cover)),
+            artist: options.songData.artist || "",
+            platform: "custom",
+        };
+    } else {
+        if (!options.url) throw new Error("Missing URL or song data");
+        const song_type = options.platform || getSongType(options.url);
+        song_data = await getTrackData(song_type, options.url);
+    }
     song_data.dominantColor = options.background || pSBC(0.001, song_data.dominantColor);
     const image = await loadImage(song_data.cover);
     const is_image_light = isLight(song_data.dominantColor);
@@ -218,4 +235,4 @@ export const generate = async (options: GenerateOptions) => {
     return canvas.png;
 };
 
-export { GenerateOptions, Platform };
+export { GenerateOptions, Platform, GenericSong };

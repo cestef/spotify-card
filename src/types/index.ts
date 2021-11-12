@@ -2,7 +2,11 @@ export interface GenerateOptions {
     /**
      * Spotify URL or URI
      */
-    url: string;
+    url?: string;
+    /**
+     * Optional song data if you want to set it manually
+     */
+    songData?: CustomSongData;
     /**
      * If progress bar is enabled, player position
      */
@@ -114,7 +118,7 @@ export interface SpotifyRes {
 }
 
 export interface GenericSong {
-    artist: string;
+    artist?: string;
     cover: string;
     title: string;
     album: string;
@@ -122,7 +126,15 @@ export interface GenericSong {
     platform: Platform;
 }
 
-export type Platform = "spotify" | "soundcloud" | "youtube" | "deezer";
+export interface CustomSongData {
+    artist?: string;
+    cover: string;
+    title: string;
+    album?: string;
+    dominantColor?: string;
+}
+
+export type Platform = "custom" | "spotify" | "soundcloud" | "youtube" | "deezer";
 
 export interface DeezerRes {
     id: number;

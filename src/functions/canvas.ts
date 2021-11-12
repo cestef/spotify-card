@@ -49,10 +49,21 @@ export const roundedImage = (
     height: number,
     radius: number
 ) => {
+    const ratio = height / image.height;
+    const image_dims = {
+        width: ratio * image.width,
+        height: ratio * image.height,
+    };
     ctx.save();
     roundRect(ctx, x, y, width, height, radius);
     ctx.clip();
-    ctx.drawImage(image, x, y, width, height);
+    ctx.drawImage(
+        image,
+        x + width / 2 - image_dims.width / 2,
+        y,
+        image_dims.width,
+        image_dims.height
+    );
     ctx.restore();
 };
 //https://github.com/PimpTrizkit/PJs/wiki/12.-Shade,-Blend-and-Convert-a-Web-Color-(pSBC.js)

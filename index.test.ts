@@ -32,4 +32,13 @@ describe("spotify-card", () => {
         });
         fs.writeFileSync(path.join(__dirname, "testing", "deezer_card.png"), image);
     });
+    test("Generates correctly for Custom Song Data", async () => {
+        const image = await generate({
+            songData: {
+                title: "Hello World !",
+                cover: "https://i.gadgets360cdn.com/large/rick_astley_youtube_1627540038486.jpg?downsize=950:*",
+            },
+        });
+        fs.writeFileSync(path.join(__dirname, "testing", "custom_card.png"), image);
+    });
 });
