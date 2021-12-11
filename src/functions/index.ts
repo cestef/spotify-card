@@ -7,7 +7,7 @@ import {
     SoundCloudRes,
 } from "../types/index";
 import axios from "axios";
-import { AElements, defaultOptions, REGEXPS } from "../constants";
+import { AElements, defaultFontSizes, defaultOptions, REGEXPS } from "../constants";
 import Colorthief from "colorthief";
 import { parse } from "himalaya";
 import { load } from "cheerio";
@@ -324,6 +324,7 @@ export const isValidSongData = (songData: any): boolean | string => {
 
 export const mergeOptions = (options: GenerateOptions) => {
     options = { ...defaultOptions, ...options };
+    options.fontSizes = { ...defaultFontSizes, ...options.fontSizes };
     for (let element of AElements)
         options.margins[element] =
             typeof options.margins[element] === "undefined"

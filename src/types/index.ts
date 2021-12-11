@@ -33,14 +33,6 @@ export interface GenerateOptions {
      */
     progressBarHeight?: number;
     /**
-     * Font size for the song title, default `60`
-     */
-    titleSize?: number;
-    /**
-     * Font size for the album title, default `45`
-     */
-    albumTitleSize?: number;
-    /**
      * Whether to blur or not the edges of the image
      */
     blurImage?: boolean;
@@ -73,10 +65,6 @@ export interface GenerateOptions {
      */
     platform?: Platform;
     /**
-     * Font size for the progress text, default `30`
-     */
-    progressFontSize?: number;
-    /**
      * Whether to set the text color relatively to the background or just to pick between black and white
      */
     adaptiveTextcolor?: boolean;
@@ -85,6 +73,23 @@ export interface GenerateOptions {
      */
     margins?: {
         [key in Element]?: number;
+    };
+    /**
+     * Fontsizes for each text element
+     */
+    fontSizes?: {
+        /**
+         * Font size for the progress bar text, default `30`
+         */
+        progress?: number;
+        /**
+         * Font size for the album title, default `45`
+         */
+        album?: number;
+        /**
+         * Font size for the song title, default `60`
+         */
+        title?: number;
     };
 }
 

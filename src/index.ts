@@ -18,6 +18,7 @@ import {
     isValidSongData,
 } from "./functions";
 import Colorthief from "colorthief";
+import { Element } from "./types/index";
 
 loadFonts([{ path: "Noto_Sans_KR", name: "NS" }]);
 
@@ -104,7 +105,7 @@ export const generate = async (options: GenerateOptions) => {
     const second_part_x = canvas.height + options.margins.cover;
 
     // Song title
-    ctx.font = `bold ${options.titleSize}px NS`;
+    ctx.font = `bold ${options.fontSizes.title}px NS`;
     ctx.fillStyle = text_color;
     const title_metrics = ctx.measureText(song_data.title);
     const middle_second_part = (canvas.height - options.margins.title * 2) / 2;
@@ -164,7 +165,7 @@ export const generate = async (options: GenerateOptions) => {
     }
 
     // Album title
-    ctx.font = `${options.albumTitleSize}px NS`;
+    ctx.font = `${options.fontSizes.album}px NS`;
     ctx.fillStyle = options.coverBackground ? text_color : pSBC(-0.5, text_color);
     const album_metrics = ctx.measureText(song_data.album);
     const album_height =
@@ -201,7 +202,7 @@ export const generate = async (options: GenerateOptions) => {
             height: options.progressBarHeight,
         };
 
-        ctx.font = `${options.progressFontSize}px NS`;
+        ctx.font = `${options.fontSizes.progress}px NS`;
         ctx.fillStyle = text_color;
         //Get the current time in youtube-like format
         const current_formatted = formatMilliseconds(options.currentTime);
@@ -241,4 +242,4 @@ export const generate = async (options: GenerateOptions) => {
     return canvas.png;
 };
 
-export { GenerateOptions, Platform, GenericSong };
+export { GenerateOptions, Platform, GenericSong, Element };

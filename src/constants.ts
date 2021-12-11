@@ -13,13 +13,11 @@ export const defaultOptions: GenerateOptions = {
     height: 400,
     defaultMargin: 40,
     progressBarHeight: 20,
-    titleSize: 60,
-    albumTitleSize: 45,
     imageRadius: 50,
     cardRadius: 25,
-    progressFontSize: 30,
     margins: {},
+    fontSizes: {},
 };
 
-export const defaultMargins: { [key in Element]?: number } = {};
+export const defaultFontSizes = { title: 60, album: 45, progress: 30 };
 export const AElements = ["cover", "title", "album", "progressBar", "progressBarText"];
