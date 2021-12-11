@@ -164,10 +164,12 @@ export const generate = async (options: GenerateOptions) => {
         );
     }
 
-    // Album title
+    // Album /Artist title
     ctx.font = `${options.fontSizes.album}px NS`;
     ctx.fillStyle = options.coverBackground ? text_color : pSBC(-0.5, text_color);
-    const album_metrics = ctx.measureText(song_data.album);
+    const album_metrics = ctx.measureText(
+        options.displayArtist ? song_data.artist : song_data.album
+    );
     const album_height =
         title_height +
         options.margins.album * 0.75 +
@@ -176,7 +178,7 @@ export const generate = async (options: GenerateOptions) => {
     ctx.fillText(
         fittingString(
             ctx,
-            song_data.album,
+            options.displayArtist ? song_data.artist : song_data.album,
             canvas.width - (canvas.height + options.margins.album * 3)
         ),
         second_part_x,

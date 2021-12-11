@@ -91,6 +91,10 @@ export interface GenerateOptions {
          */
         title?: number;
     };
+    /**
+     * Display artist's name instead of the album name
+     */
+    displayArtist?: true;
 }
 
 export interface SpotifyAlbum {
