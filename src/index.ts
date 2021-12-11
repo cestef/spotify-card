@@ -9,9 +9,14 @@ import {
     loadFonts,
 } from "./functions/canvas";
 import { GenerateOptions, GenericSong, Platform } from "./types";
-import { getSongType, formatMilliseconds, getTrackData, rgbToHex } from "./functions";
-import { defaultOptions } from "./constants";
-import { isValidSongData } from "./functions/index";
+import {
+    getSongType,
+    formatMilliseconds,
+    getTrackData,
+    rgbToHex,
+    mergeOptions,
+    isValidSongData,
+} from "./functions";
 import Colorthief from "colorthief";
 
 loadFonts([{ path: "Noto_Sans_KR", name: "NS" }]);
@@ -20,9 +25,7 @@ loadFonts([{ path: "Noto_Sans_KR", name: "NS" }]);
  * Generates a spotify card
  */
 export const generate = async (options: GenerateOptions) => {
-    options = { ...defaultOptions, ...options };
-    if (options.blurImage && typeof options.blurProgress === "undefined")
-        options.blurProgress = true;
+    options = mergeOptions(options);
     const canvas = new Canvas(options.width, options.height);
     const ctx = canvas.getContext("2d");
 
@@ -63,7 +66,6 @@ export const generate = async (options: GenerateOptions) => {
     } else {
         const width = canvas.width;
         const height = (canvas.width / image.width) * image.height;
-
         //Gradient to darken the image and make the text more readable
         const gradient = ctx.createLinearGradient(0, canvas.height, canvas.width, canvas.height);
         gradient.addColorStop(1, "#1e1e1e30");
@@ -72,7 +74,7 @@ export const generate = async (options: GenerateOptions) => {
         ctx.save();
         roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
         ctx.clip();
-        ctx.drawImage(image, 0, -height / 2, width, height);
+        ctx.drawImage(image, 0, canvas.height / 2 - height / 2, width, height);
         ctx.restore();
 
         ctx.fillStyle = gradient;
@@ -83,31 +85,31 @@ export const generate = async (options: GenerateOptions) => {
         ctx.filter = "blur(30px)";
         ctx.drawImage(
             image,
-            options.margin,
-            options.margin,
-            canvas.height - options.margin * 2,
-            canvas.height - options.margin * 2
+            options.margins.cover,
+            options.margins.cover,
+            canvas.height - options.margins.cover * 2,
+            canvas.height - options.margins.cover * 2
         );
     }
     ctx.filter = "none";
     roundedImage(
         ctx,
         image,
-        options.margin,
-        options.margin,
-        canvas.height - options.margin * 2,
-        canvas.height - options.margin * 2,
+        options.margins.cover,
+        options.margins.cover,
+        canvas.height - options.margins.cover * 2,
+        canvas.height - options.margins.cover * 2,
         options.imageRadius
     );
-    const second_part_x = canvas.height + options.margin;
+    const second_part_x = canvas.height + options.margins.cover;
 
     // Song title
     ctx.font = `bold ${options.titleSize}px NS`;
     ctx.fillStyle = text_color;
     const title_metrics = ctx.measureText(song_data.title);
-    const middle_second_part = (canvas.height - options.margin * 2) / 2;
+    const middle_second_part = (canvas.height - options.margins.title * 2) / 2;
     const title_height =
-        options.margin * 1.5 +
+        options.margins.title * 1.5 +
         title_metrics.actualBoundingBoxAscent +
         title_metrics.actualBoundingBoxDescent;
     if (song_data.platform === "youtube") {
@@ -115,7 +117,7 @@ export const generate = async (options: GenerateOptions) => {
         const first_part = fittingString(
             ctx,
             song_data.title,
-            canvas.width - (canvas.height + options.margin * 3),
+            canvas.width - (canvas.height + options.margins.title * 3),
             "-"
         );
         if (first_part.endsWith("-")) {
@@ -123,12 +125,12 @@ export const generate = async (options: GenerateOptions) => {
             const second_part = fittingString(
                 ctx,
                 song_data.title.split(first_part.slice(0, -1))[1].trim(),
-                canvas.width - (canvas.height + options.margin * 3)
+                canvas.width - (canvas.height + options.margins.title * 3)
             );
             const album_metrics = ctx.measureText(second_part);
             const album_height =
                 title_height +
-                options.margin * 0.5 +
+                options.margins.album * 0.5 +
                 album_metrics.actualBoundingBoxAscent +
                 album_metrics.actualBoundingBoxDescent;
             ctx.fillText(
@@ -139,14 +141,14 @@ export const generate = async (options: GenerateOptions) => {
                     : middle_second_part +
                           album_metrics.actualBoundingBoxAscent +
                           album_metrics.actualBoundingBoxDescent +
-                          options.margin
+                          options.margins.title
             );
         }
 
         ctx.fillText(
             first_part,
             second_part_x,
-            options.progressBar ? title_height : middle_second_part + options.margin / 2
+            options.progressBar ? title_height : middle_second_part + options.margins.title / 2
         );
     } else {
         //Just write the text normally for other platforms
@@ -154,10 +156,10 @@ export const generate = async (options: GenerateOptions) => {
             fittingString(
                 ctx,
                 song_data.title,
-                canvas.width - (canvas.height + options.margin * 3)
+                canvas.width - (canvas.height + options.margins.title * 3)
             ),
             second_part_x,
-            options.progressBar ? title_height : middle_second_part + options.margin / 2
+            options.progressBar ? title_height : middle_second_part + options.margins.title / 2
         );
     }
 
@@ -167,18 +169,22 @@ export const generate = async (options: GenerateOptions) => {
     const album_metrics = ctx.measureText(song_data.album);
     const album_height =
         title_height +
-        options.margin +
+        options.margins.album * 0.75 +
         album_metrics.actualBoundingBoxAscent +
         album_metrics.actualBoundingBoxDescent;
     ctx.fillText(
-        fittingString(ctx, song_data.album, canvas.width - (canvas.height + options.margin * 3)),
+        fittingString(
+            ctx,
+            song_data.album,
+            canvas.width - (canvas.height + options.margins.album * 3)
+        ),
         second_part_x,
         options.progressBar
             ? album_height
             : middle_second_part +
                   album_metrics.actualBoundingBoxAscent +
                   album_metrics.actualBoundingBoxDescent +
-                  options.margin * 1.5
+                  options.margins.album * 1.5
     );
 
     if (options.progressBar) {
@@ -187,12 +193,12 @@ export const generate = async (options: GenerateOptions) => {
                 "Progressbar is enabled but no totalTime or currentTime has been provided"
             );
         // Progress text
-        const progress_text_y = canvas.height - options.margin;
+        const progress_text_y = canvas.height - options.margins.progressBarText;
         const progress_bar = {
             x: second_part_x,
-            y: progress_text_y - options.margin * 1.75,
-            width: canvas.width - (second_part_x + options.margin * 2),
-            height: 20,
+            y: progress_text_y - options.margins.progressBarText * 2,
+            width: canvas.width - (second_part_x + options.margins.progressBar * 2),
+            height: options.progressBarHeight,
         };
 
         ctx.font = `${options.progressFontSize}px NS`;

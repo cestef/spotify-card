@@ -7,10 +7,11 @@ import {
     SoundCloudRes,
 } from "../types/index";
 import axios from "axios";
-import { REGEXPS } from "../constants";
+import { AElements, defaultOptions, REGEXPS } from "../constants";
 import Colorthief from "colorthief";
 import { parse } from "himalaya";
 import { load } from "cheerio";
+import { GenerateOptions } from "../types/index";
 
 export const getSongType = (url: string): Platform | null => {
     for (let platform in REGEXPS) if (REGEXPS[platform].test(url)) return platform as Platform;
@@ -319,4 +320,16 @@ export const isValidSongData = (songData: any): boolean | string => {
         }
     }
     return true;
+};
+
+export const mergeOptions = (options: GenerateOptions) => {
+    options = { ...defaultOptions, ...options };
+    for (let element of AElements)
+        options.margins[element] =
+            typeof options.margins[element] === "undefined"
+                ? options.defaultMargin
+                : options.margins[element];
+    if (options.blurImage && typeof options.blurProgress === "undefined")
+        options.blurProgress = true;
+    return options;
 };

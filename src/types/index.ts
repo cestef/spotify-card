@@ -1,3 +1,4 @@
+export type Element = "cover" | "title" | "album" | "progressBar" | "progressBarText";
 export interface GenerateOptions {
     /**
      * Spotify URL or URI
@@ -24,9 +25,9 @@ export interface GenerateOptions {
      */
     height?: number;
     /**
-     * Margin for all the elements, default `40`
+     * Default margin for all the elements, default `40`
      */
-    margin?: number;
+    defaultMargin?: number;
     /**
      * if progress bar is enabled, progress bar height, default `20`
      */
@@ -79,6 +80,12 @@ export interface GenerateOptions {
      * Whether to set the text color relatively to the background or just to pick between black and white
      */
     adaptiveTextcolor?: boolean;
+    /**
+     * Margins for each individual element
+     */
+    margins?: {
+        [key in Element]?: number;
+    };
 }
 
 export interface SpotifyAlbum {
