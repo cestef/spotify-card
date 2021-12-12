@@ -70,8 +70,8 @@ export const generate = async (options: GenerateOptions) => {
         const height = (canvas.width / image.width) * image.height;
         //Gradient to darken the image and make the text more readable
         const gradient = ctx.createLinearGradient(0, canvas.height, canvas.width, canvas.height);
-        gradient.addColorStop(1, "#1e1e1e30");
-        gradient.addColorStop(0, "#1e1e1e60");
+        gradient.addColorStop(1, "#1e1e1e40");
+        gradient.addColorStop(0, "#1e1e1e80");
 
         ctx.save();
         roundRect(ctx, 0, 0, canvas.width, canvas.height, options.cardRadius);
