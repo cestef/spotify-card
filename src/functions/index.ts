@@ -330,7 +330,5 @@ export const mergeOptions = (options: GenerateOptions) => {
             typeof options.margins[element] === "undefined"
                 ? options.defaultMargin
                 : options.margins[element];
-    if (options.blurImage && typeof options.blurProgress === "undefined")
-        options.blurProgress = true;
     return options;
 };

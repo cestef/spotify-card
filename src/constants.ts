@@ -17,6 +17,7 @@ export const defaultOptions: GenerateOptions = {
     cardRadius: 25,
     margins: {},
     fontSizes: {},
+    blur: {},
 };
 
 export const defaultFontSizes = { title: 60, album: 45, progress: 30 };

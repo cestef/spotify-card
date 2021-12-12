@@ -1,4 +1,4 @@
-import { Canvas, loadImage } from "skia-canvas";
+import { Canvas, loadImage, FontLibrary } from "skia-canvas";
 import {
     roundRect,
     roundedImage,
@@ -27,6 +27,7 @@ loadFonts([{ path: "Noto_Sans_KR", name: "NS" }]);
  */
 export const generate = async (options: GenerateOptions) => {
     options = mergeOptions(options);
+    if (options.font) FontLibrary.use(options.font.name, [options.font.path]);
     const canvas = new Canvas(options.width, options.height);
     const ctx = canvas.getContext("2d");
 
@@ -82,7 +83,7 @@ export const generate = async (options: GenerateOptions) => {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    if (options.blurImage) {
+    if (options.blur.image) {
         ctx.filter = "blur(30px)";
         ctx.drawImage(
             image,
@@ -105,7 +106,7 @@ export const generate = async (options: GenerateOptions) => {
     const second_part_x = canvas.height + options.margins.cover;
 
     // Song title
-    ctx.font = `bold ${options.fontSizes.title}px NS`;
+    ctx.font = `bold ${options.fontSizes.title}px ${options.font ? options.font.name : "NS"}`;
     ctx.fillStyle = text_color;
     const title_metrics = ctx.measureText(song_data.title);
     const middle_second_part = (canvas.height - options.margins.title * 2) / 2;
@@ -113,6 +114,10 @@ export const generate = async (options: GenerateOptions) => {
         options.margins.title * 1.5 +
         title_metrics.actualBoundingBoxAscent +
         title_metrics.actualBoundingBoxDescent;
+    if (options.blur.text) {
+        ctx.shadowBlur = is_text_light ? 35 : 80;
+        ctx.shadowColor = pSBC(is_text_light ? -0.7 : 0.02, text_color);
+    }
     if (song_data.platform === "youtube") {
         //Since we have no album for youtube, we can put the title on 2 lines
         const first_part = fittingString(
@@ -153,6 +158,7 @@ export const generate = async (options: GenerateOptions) => {
         );
     } else {
         //Just write the text normally for other platforms
+
         ctx.fillText(
             fittingString(
                 ctx,
@@ -165,7 +171,7 @@ export const generate = async (options: GenerateOptions) => {
     }
 
     // Album /Artist title
-    ctx.font = `${options.fontSizes.album}px NS`;
+    ctx.font = `${options.fontSizes.album}px ${options.font ? options.font.name : "NS"}`;
     ctx.fillStyle = options.coverBackground ? text_color : pSBC(-0.5, text_color);
     const album_metrics = ctx.measureText(
         options.displayArtist ? song_data.artist : song_data.album
@@ -204,7 +210,7 @@ export const generate = async (options: GenerateOptions) => {
             height: options.progressBarHeight,
         };
 
-        ctx.font = `${options.fontSizes.progress}px NS`;
+        ctx.font = `${options.fontSizes.progress}px ${options.font ? options.font.name : "NS"}`;
         ctx.fillStyle = text_color;
         //Get the current time in youtube-like format
         const current_formatted = formatMilliseconds(options.currentTime);
@@ -222,7 +228,7 @@ export const generate = async (options: GenerateOptions) => {
         );
 
         // Progress bar
-        if (options.blurProgress) {
+        if (options.blur.progress) {
             // Set a wider spread for darker cards for a better result
             ctx.shadowBlur = is_text_light ? 30 : 80;
             ctx.shadowColor = pSBC(is_text_light ? -0.7 : 0.02, text_color);

@@ -33,14 +33,6 @@ export interface GenerateOptions {
      */
     progressBarHeight?: number;
     /**
-     * Whether to blur or not the edges of the image
-     */
-    blurImage?: boolean;
-    /**
-     * Whether to blur or not the progress bar, default to `true` if blurImage is set to `true`
-     */
-    blurProgress?: boolean;
-    /**
      * Whether to enable or not the progress bar
      */
     progressBar?: boolean;
@@ -95,6 +87,21 @@ export interface GenerateOptions {
      * Display artist's name instead of the album name
      */
     displayArtist?: true;
+    /**
+     * Custom font path and name to use
+     */
+    font?: {
+        name: string;
+        path: string;
+    };
+    /**
+     * Whether to blur or not for each element
+     */
+    blur?: {
+        image?: boolean;
+        text?: boolean;
+        progress?: boolean;
+    };
 }
 
 export interface SpotifyAlbum {
