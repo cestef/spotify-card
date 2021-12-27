@@ -242,7 +242,7 @@ export const generate = async (options: GenerateOptions) => {
             progress_bar.height,
             options.totalTime,
             options.currentTime,
-            is_image_light
+            is_text_light
         );
     }
 

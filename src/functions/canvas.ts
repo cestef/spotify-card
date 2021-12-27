@@ -213,9 +213,9 @@ export const progressBar = (
     current: number,
     light: boolean
 ) => {
-    ctx.fillStyle = light ? "#2e2e2ebf" : "#bbb";
+    ctx.fillStyle = light ? "#bbb" : "#2e2e2ebf";
     roundRect(ctx, x, y, width, height, 8);
-    ctx.fillStyle = light ? "#1e1e1e" : "#fff";
+    ctx.fillStyle = light ? "#fff" : "#1e1e1e";
     roundRect(ctx, x, y, (width / total) * current, height, 8);
     ctx.beginPath();
     ctx.arc(x + (width / total) * current, y + height / 2, height * 1.25, 0, 360);
