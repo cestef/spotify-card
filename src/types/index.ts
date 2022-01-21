@@ -86,7 +86,7 @@ export interface GenerateOptions {
     /**
      * Display artist's name instead of the album name
      */
-    displayArtist?: true;
+    displayArtist?: false;
     /**
      * Custom font path and name to use
      */
