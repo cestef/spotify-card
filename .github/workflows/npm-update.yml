@@ -8,6 +8,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14
+      - run: tsc -v
       - run: npm install
       - run: tsc
       - uses: JS-DevTools/npm-publish@v1
