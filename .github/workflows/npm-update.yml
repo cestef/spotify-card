@@ -8,9 +8,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14
-      - run: tsc -v
-      - run: npm install
-      - run: tsc
+      - run: yarn
+      - run: yarn build
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
