@@ -19,6 +19,7 @@ import {
 } from "./functions";
 import Colorthief from "colorthief";
 import { Element } from "./types/index";
+import { CustomSongData } from "../dist/types/index";
 
 loadFonts([{ path: "Noto_Sans_KR", name: "NS" }]);
 
@@ -250,4 +251,4 @@ export const generate = async (options: GenerateOptions) => {
     return canvas.png;
 };
 
-export { GenerateOptions, Platform, GenericSong, Element };
+export { GenerateOptions, Platform, GenericSong, Element, CustomSongData };
