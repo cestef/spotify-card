@@ -8,7 +8,7 @@ import {
     progressBar,
     loadFonts,
 } from "./functions/canvas";
-import { GenerateOptions, GenericSong, Platform } from "./types";
+import { GenerateOptions, GenericSong, Platform, CustomSongData } from "./types";
 import {
     getSongType,
     formatMilliseconds,
@@ -19,7 +19,6 @@ import {
 } from "./functions";
 import Colorthief from "colorthief";
 import { Element } from "./types/index";
-import { CustomSongData } from "../dist/types/index";
 
 loadFonts([{ path: "Noto_Sans_KR", name: "NS" }]);
 
